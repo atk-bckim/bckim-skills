@@ -1,75 +1,63 @@
-# 기술 설계 문서 가이드
+# Technical Design Guide
 
-기술 설계 문서는 ERD, 시스템 아키텍처, API 설계 등 기술적인 구조를 명확하게 기록하는 문서다.
+Use this reference for ERD, architecture, API, integration, and system design documents. Start with the shell in `detail-doc-guide.md`, then choose the relevant body sections below.
 
----
+Apply the skill language policy. Localize human-facing headings and descriptions, but keep technical identifiers such as table names, column names, API routes, class names, service names, ports, commands, and Mermaid syntax unchanged.
 
-## ERD 문서 템플릿
+## ERD Body Sections
 
-```markdown
----
-문서제목: [서비스명] ERD 설계서
-문서유형: ERD
-작성일: YYYY-MM-DD
-최종수정: YYYY-MM-DD
-버전: v1.0
-상태: 초안
-태그: [DB, ERD, MSSQL]
----
+````markdown
+## Overview
 
-# [서비스명] ERD 설계서
+- **Purpose**: [What data model this document defines.]
+- **Database**: [MSSQL | PostgreSQL | MySQL | SQLite | Other]
+- **Audience**: [Backend engineers, DBA, data engineers, etc.]
 
-## 개요
+## Entity List
 
-- **목적**: 이 문서는 [서비스명]의 데이터베이스 구조를 정의한다.
-- **DB 종류**: MSSQL / PostgreSQL / MySQL 등
-- **독자 대상**: 백엔드 개발자, DBA
-
-## 엔티티 목록
-
-| 엔티티명(테이블) | 한국어명 | 설명 |
+| Entity | Table | Description |
 |---|---|---|
-| users | 사용자 | 서비스 이용자 정보 |
-| orders | 주문 | 사용자 주문 내역 |
+| User | `users` | Stores application user accounts |
+| Order | `orders` | Stores purchase orders |
 
-## 엔티티 상세
+## Entity Details
 
-### users (사용자)
+### `users`
 
-| 컬럼명 | 데이터타입 | NULL 허용 | 기본값 | 설명 |
-|---|---|---|---|---|
-| id | INT | NO | AUTO_INCREMENT | PK, 사용자 고유 ID |
-| email | VARCHAR(255) | NO | - | 로그인 이메일 (UNIQUE) |
-| created_at | DATETIME | NO | GETDATE() | 생성일시 |
+| Column | Type | Null | Default | Key | Description |
+|---|---|---|---|---|---|
+| id | INT | NO | AUTO_INCREMENT | PK | Unique user ID |
+| email | VARCHAR(255) | NO | - | UNIQUE | Login email |
+| created_at | DATETIME | NO | CURRENT_TIMESTAMP | - | Creation timestamp |
 
-### orders (주문)
+### `orders`
 
-| 컬럼명 | 데이터타입 | NULL 허용 | 기본값 | 설명 |
-|---|---|---|---|---|
-| id | INT | NO | AUTO_INCREMENT | PK, 주문 고유 ID |
-| user_id | INT | NO | - | FK → users.id |
-| total_price | DECIMAL(10,2) | NO | - | 주문 총금액 |
+| Column | Type | Null | Default | Key | Description |
+|---|---|---|---|---|---|
+| id | INT | NO | AUTO_INCREMENT | PK | Unique order ID |
+| user_id | INT | NO | - | FK | References `users.id` |
+| total_price | DECIMAL(10,2) | NO | - | - | Order total |
 
-## 관계 정의
+## Relationships
 
-| 관계 | 유형 | 설명 |
-|---|---|---|
-| users → orders | 1:N | 한 사용자는 여러 주문을 가질 수 있다 |
-
-## 인덱스 정의
-
-| 테이블 | 인덱스명 | 대상 컬럼 | 유형 |
+| From | To | Cardinality | Description |
 |---|---|---|---|
-| users | idx_users_email | email | UNIQUE |
-| orders | idx_orders_user_id | user_id | INDEX |
+| `users.id` | `orders.user_id` | 1:N | One user can have many orders |
 
-## Mermaid ERD 다이어그램
+## Indexes
+
+| Table | Index | Columns | Type | Purpose |
+|---|---|---|---|---|
+| users | idx_users_email | email | UNIQUE | Prevent duplicate login emails |
+| orders | idx_orders_user_id | user_id | INDEX | Speed up user order lookups |
+
+## ERD Diagram
 
 ```mermaid
 erDiagram
     users {
         int id PK
-        varchar email
+        varchar email UK
         datetime created_at
     }
     orders {
@@ -77,86 +65,113 @@ erDiagram
         int user_id FK
         decimal total_price
     }
-    users ||--o{ orders : "has"
+    users ||--o{ orders : has
 ```
+````
 
-## 변경이력
+## Architecture Body Sections
 
-| 버전 | 날짜 | 작성자 | 변경내용 |
-|---|---|---|---|
-| v1.0 | YYYY-MM-DD | - | 최초 작성 |
-```
+````markdown
+## Overview
 
----
+- **Purpose**: [What system or feature architecture this document defines.]
+- **Scope**: [In-scope services, clients, infrastructure, and integrations.]
+- **Audience**: [Engineering team, platform team, security reviewers, etc.]
 
-## 아키텍처 설계 문서 템플릿
-
-```markdown
----
-문서제목: [서비스명] 시스템 아키텍처 설계서
-문서유형: 아키텍처
-작성일: YYYY-MM-DD
-최종수정: YYYY-MM-DD
-버전: v1.0
-상태: 초안
-태그: [아키텍처, 인프라, 시스템설계]
----
-
-# [서비스명] 시스템 아키텍처 설계서
-
-## 개요
-
-- **목적**: [서비스명]의 전체 시스템 구조와 컴포넌트 간 관계를 정의한다.
-- **기술 스택 요약**:
-  - Frontend: Vite + React + TypeScript + Tailwind CSS
-  - Backend: .NET Core C#
-  - Database: MSSQL
-- **독자 대상**: 개발팀 전체
-
-## 시스템 구성도
+## System Diagram
 
 ```mermaid
 graph TD
-    Client[클라이언트 - React] --> API[API 서버 - .NET Core]
-    API --> DB[(MSSQL DB)]
-    API --> Cache[Redis 캐시]
+    Client[Web Client] --> API[Backend API]
+    API --> DB[(Database)]
+    API --> Cache[Cache]
 ```
 
-## 컴포넌트 상세
+## Components
 
-| 컴포넌트 | 기술 | 역할 | 포트 |
+| Component | Technology | Responsibility | Port or Endpoint |
 |---|---|---|---|
-| Frontend | React + Vite | 사용자 인터페이스 | 5173 |
-| Backend API | .NET Core C# | 비즈니스 로직, REST API | 5000 |
-| Database | MSSQL | 데이터 영속성 | 1433 |
+| Web Client | React + Vite | User interface | 5173 |
+| Backend API | .NET | Business logic and REST API | 5000 |
+| Database | MSSQL | Persistent data storage | 1433 |
 
-## API 엔드포인트 개요
+## Data Flow
 
-| 메서드 | 경로 | 설명 | 인증 필요 |
+| Step | Source | Target | Description |
 |---|---|---|---|
-| GET | /api/users | 사용자 목록 조회 | Y |
-| POST | /api/users | 사용자 생성 | N |
-| GET | /api/orders/{id} | 주문 상세 조회 | Y |
+| 1 | Web Client | Backend API | Sends authenticated request |
+| 2 | Backend API | Database | Reads or writes domain data |
 
-## 보안 설계
+## Security Design
 
-| 항목 | 방식 | 설명 |
+| Area | Mechanism | Notes |
 |---|---|---|
-| 인증 | JWT | Access Token + Refresh Token |
-| 권한 | Role-based | Admin / User 구분 |
-| 통신 | HTTPS | 전 구간 암호화 |
+| Authentication | JWT | Access and refresh token flow |
+| Authorization | Role-based access | Admin and user roles |
+| Transport | HTTPS | Required outside local development |
 
-## 배포 환경
+## Environments
 
-| 환경 | 서버 | 설명 |
+| Environment | Host or Target | Notes |
 |---|---|---|
-| 개발 (dev) | localhost | 로컬 개발 환경 |
-| 스테이징 (stage) | [TODO] | QA 테스트 환경 |
-| 운영 (prod) | [TODO] | 실서비스 환경 |
+| Local | localhost | Developer workstation |
+| Staging | [TODO: add staging target] | QA and release validation |
+| Production | [TODO: add production target] | Live service |
+````
 
-## 변경이력
+## API Body Sections
 
-| 버전 | 날짜 | 작성자 | 변경내용 |
+````markdown
+## Overview
+
+- **Purpose**: [What API surface this document defines.]
+- **Base URL**: `/api`
+- **Authentication**: [None | JWT | Session | API key]
+
+## Endpoint Summary
+
+| Method | Path | Description | Auth |
 |---|---|---|---|
-| v1.0 | YYYY-MM-DD | - | 최초 작성 |
+| GET | `/api/users` | List users | Required |
+| POST | `/api/users` | Create user | Required |
+| GET | `/api/users/{id}` | Get user details | Required |
+
+## Endpoint Details
+
+### `GET /api/users`
+
+**Purpose**
+
+[Explain what this endpoint returns.]
+
+**Request**
+
+| Field | Location | Type | Required | Description |
+|---|---|---|---|---|
+| page | Query | integer | No | Page number |
+| page_size | Query | integer | No | Items per page |
+
+**Response**
+
+```json
+{
+  "items": [],
+  "total": 0
+}
 ```
+
+**Errors**
+
+| Status | Code | Condition |
+|---|---|---|
+| 401 | UNAUTHORIZED | Missing or invalid credentials |
+| 500 | INTERNAL_ERROR | Unexpected server failure |
+````
+
+## Technical Design Checklist
+
+- [ ] Use project-specific technologies instead of placeholder stacks.
+- [ ] Keep Mermaid syntax valid.
+- [ ] Verify API paths and database identifiers against source code when available.
+- [ ] Mark unknown infrastructure, hostnames, ports, or owners with `[TODO: ...]`.
+- [ ] Link related requirements, API docs, ERDs, and architecture docs through the related-documents section.

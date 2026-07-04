@@ -1,196 +1,138 @@
-# 기획서 / 요구사항 정의서 작성 가이드
+# Planning and Requirements Guide
 
-기획서와 요구사항 정의서는 프로젝트의 목적, 범위, 기능 요구사항을 명확하게 정의하는 문서다.
+Use this reference for project plans, product briefs, feature specs, and requirements documents. Start with the shell in `detail-doc-guide.md`, then choose the relevant body sections below.
 
----
+Apply the skill language policy. Localize headings, table labels, priority labels, status values, and prose into the target document language. Keep requirement IDs, feature IDs, file paths, API paths, and technical identifiers ASCII where practical.
 
-## 기획서 템플릿
-
-```markdown
----
-문서제목: [프로젝트명] 기획서
-문서유형: 기획서
-작성일: YYYY-MM-DD
-최종수정: YYYY-MM-DD
-버전: v1.0
-상태: 초안
-태그: [기획서, 프로젝트명]
----
-
-# [프로젝트명] 기획서
-
-## 프로젝트 개요
-
-| 항목 | 내용 |
-|---|---|
-| 프로젝트명 | [이름] |
-| 목적 | [한 줄 요약] |
-| 기간 | YYYY-MM-DD ~ YYYY-MM-DD |
-| 담당팀 / 담당자 | [팀명 / 이름] |
-| 버전 | v1.0 |
-
-## 배경 및 목적
-
-- **배경**: [이 프로젝트를 왜 시작하는가]
-- **목적**: [무엇을 해결하거나 달성하려는가]
-- **기대 효과**: [성공 시 어떤 변화가 생기는가]
-
-## 범위 (Scope)
-
-### 포함 (In-Scope)
-
-| # | 기능/항목 | 설명 |
-|---|---|---|
-| 1 | [기능명] | [설명] |
-| 2 | [기능명] | [설명] |
-
-### 제외 (Out-of-Scope)
-
-| # | 항목 | 제외 이유 |
-|---|---|---|
-| 1 | [항목] | [이유] |
-
----
-
-## 기능 요구사항
-
-### 기능 목록
-
-| ID | 기능명 | 우선순위 | 담당자 | 상태 |
-|---|---|---|---|---|
-| F-001 | [기능명] | 높음 | [이름] | 🔲 미시작 |
-| F-002 | [기능명] | 중간 | [이름] | 🔲 미시작 |
-
-**우선순위 기준**: 높음 (Must Have) / 중간 (Should Have) / 낮음 (Nice to Have)
-
-**상태 코드**:
-- 🔲 미시작
-- 🔄 진행중
-- ✅ 완료
-- ❌ 취소/보류
-
----
-
-### 기능 상세
-
-#### F-001. [기능명]
-
-| 항목 | 내용 |
-|---|---|
-| 기능 ID | F-001 |
-| 기능명 | [이름] |
-| 우선순위 | 높음 |
-| 대상 사용자 | [일반 사용자 / 관리자] |
-
-**기능 설명**
-
-[기능의 목적과 동작 방식을 2~3문장으로 설명]
-
-**기능 요구사항 목록**
-
-| # | 요구사항 | 필수 여부 |
-|---|---|---|
-| 1 | [구체적인 요구사항] | 필수 |
-| 2 | [구체적인 요구사항] | 선택 |
-
-**예외 처리 / 엣지 케이스**
-
-| 상황 | 처리 방식 |
-|---|---|
-| [상황 설명] | [처리 방법] |
-
----
-
-## 비기능 요구사항
-
-| 항목 | 요구사항 | 비고 |
-|---|---|---|
-| 성능 | 페이지 로딩 3초 이내 | - |
-| 보안 | JWT 인증 필수 | - |
-| 브라우저 지원 | Chrome, Edge 최신 버전 | - |
-| 반응형 | 모바일 / 태블릿 지원 | - |
-
----
-
-## 기술 스택
-
-| 구분 | 기술 | 버전 |
-|---|---|---|
-| Frontend | React + Vite + TypeScript | - |
-| Styling | Tailwind CSS | - |
-| Backend | .NET Core C# | - |
-| Database | MSSQL | - |
-
----
-
-## 일정 계획
-
-| 단계 | 내용 | 시작일 | 종료일 | 담당자 |
-|---|---|---|---|---|
-| 기획 | 요구사항 정의 | YYYY-MM-DD | YYYY-MM-DD | [이름] |
-| 설계 | DB/API 설계 | YYYY-MM-DD | YYYY-MM-DD | [이름] |
-| 개발 | 기능 구현 | YYYY-MM-DD | YYYY-MM-DD | [이름] |
-| 테스트 | QA | YYYY-MM-DD | YYYY-MM-DD | [이름] |
-| 배포 | 운영 배포 | YYYY-MM-DD | YYYY-MM-DD | [이름] |
-
----
-
-## 리스크
-
-| # | 리스크 | 발생 가능성 | 영향도 | 대응 방안 |
-|---|---|---|---|---|
-| 1 | [리스크 내용] | 중간 | 높음 | [대응 방법] |
-
----
-
-## 참고 자료
-
-- [관련 문서 링크 또는 제목]
-- [참고한 기술 문서, 경쟁사 사례 등]
-
-## 변경이력
-
-| 버전 | 날짜 | 작성자 | 변경내용 |
-|---|---|---|---|
-| v1.0 | YYYY-MM-DD | - | 최초 작성 |
-```
-
----
-
-## 요구사항 정의서 간이 템플릿
-
-기획서보다 가볍게 요구사항만 정리할 때 사용:
+## Product or Project Plan Body Sections
 
 ```markdown
----
-문서제목: [기능명] 요구사항 정의서
-문서유형: 요구사항정의서
-작성일: YYYY-MM-DD
-버전: v1.0
-상태: 초안
----
+## Overview
 
-# [기능명] 요구사항 정의서
-
-## 목적
-[이 문서의 목적을 1~2문장으로]
-
-## 기능 요구사항
-
-| ID | 요구사항 | 우선순위 | 비고 |
-|---|---|---|---|
-| REQ-001 | [요구사항] | 필수 | - |
-| REQ-002 | [요구사항] | 선택 | - |
-
-## 제약사항
-
-| 항목 | 내용 |
+| Field | Value |
 |---|---|
-| [항목] | [내용] |
+| Project | [Project name] |
+| Purpose | [One-sentence purpose] |
+| Timeframe | YYYY-MM-DD to YYYY-MM-DD |
+| Owner | [Team or person] |
+| Status | Draft |
 
-## 변경이력
+## Background and Goals
 
-| 버전 | 날짜 | 변경내용 |
-|---|---|---|
-| v1.0 | YYYY-MM-DD | 최초 작성 |
+- **Background**: [Why this work exists.]
+- **Goals**: [What this work should achieve.]
+- **Expected impact**: [What changes when this succeeds.]
+
+## Scope
+
+### In Scope
+
+| Item | Description |
+|---|---|
+| [Feature or work item] | [What is included] |
+
+### Out of Scope
+
+| Item | Reason |
+|---|---|
+| [Excluded item] | [Why it is excluded] |
+
+## Requirements
+
+| ID | Requirement | Priority | Owner | Status |
+|---|---|---|---|---|
+| REQ-001 | [Requirement] | Must | [Owner] | Not started |
+| REQ-002 | [Requirement] | Should | [Owner] | Not started |
+
+## Milestones
+
+| Phase | Work | Start | End | Owner |
+|---|---|---|---|---|
+| Planning | Requirements and scope | YYYY-MM-DD | YYYY-MM-DD | [Owner] |
+| Design | Technical design | YYYY-MM-DD | YYYY-MM-DD | [Owner] |
+| Build | Implementation | YYYY-MM-DD | YYYY-MM-DD | [Owner] |
+| Test | QA and validation | YYYY-MM-DD | YYYY-MM-DD | [Owner] |
+| Release | Production rollout | YYYY-MM-DD | YYYY-MM-DD | [Owner] |
+
+## Risks
+
+| Risk | Likelihood | Impact | Mitigation |
+|---|---|---|---|
+| [Risk] | Medium | High | [Mitigation plan] |
 ```
+
+## Feature Requirements Body Sections
+
+```markdown
+## Purpose
+
+[Explain what this feature should accomplish in one or two paragraphs.]
+
+## Users and Use Cases
+
+| User | Goal | Notes |
+|---|---|---|
+| [User type] | [Goal] | [Context or constraints] |
+
+## Functional Requirements
+
+| ID | Requirement | Priority | Status |
+|---|---|---|---|
+| F-001 | [Specific behavior] | Must | Not started |
+| F-002 | [Specific behavior] | Should | Not started |
+
+## Requirement Details
+
+### F-001. [Requirement Name]
+
+| Field | Value |
+|---|---|
+| Priority | Must |
+| Users | [Target users] |
+| Status | Not started |
+
+**Description**
+
+[Describe the required behavior and expected outcome.]
+
+**Acceptance Criteria**
+
+| # | Criterion |
+|---|---|
+| 1 | [Observable acceptance criterion] |
+| 2 | [Observable acceptance criterion] |
+
+**Edge Cases**
+
+| Case | Expected Handling |
+|---|---|
+| [Condition] | [Expected behavior] |
+
+## Non-Functional Requirements
+
+| Area | Requirement | Notes |
+|---|---|---|
+| Performance | [Performance target] | [Measurement context] |
+| Security | [Security requirement] | [Auth, data, or compliance notes] |
+| Compatibility | [Browser, OS, API, or migration requirement] | [Supported range] |
+```
+
+## Status and Priority Values
+
+Use plain text values, localized when appropriate:
+
+| Category | Suggested values |
+|---|---|
+| Status | Not started, In progress, Blocked, Done, Canceled |
+| Priority | Must, Should, Could, Won't |
+| Risk likelihood | Low, Medium, High |
+| Risk impact | Low, Medium, High |
+
+## Planning Checklist
+
+- [ ] Capture purpose, scope, owner, and status.
+- [ ] Separate in-scope and out-of-scope work.
+- [ ] Use requirement IDs consistently.
+- [ ] Write acceptance criteria as observable outcomes.
+- [ ] Mark unknown dates, owners, and constraints with `[TODO: ...]`.
+- [ ] Link related technical designs, API docs, ERDs, and meeting notes through the related-documents section.

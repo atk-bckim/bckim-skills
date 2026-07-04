@@ -1,114 +1,84 @@
-# index.md 작성 가이드
+# index.md Guide
 
-`index.md`는 전체 문서의 진입점이다. AI와 사람 모두 여기서 시작해 필요한 문서를 찾는다.
-**가볍게 유지하는 것이 핵심** — 상세 내용은 절대 포함하지 않는다.
+`docs/index.md` is the entry point for project documentation. Keep it short: it should help people and agents find the right detail document, not repeat the detail document.
 
----
+Apply the skill language policy. Localize headings, labels, descriptions, and category names into the target document language. Keep paths and filenames ASCII/lowercase kebab-case where practical.
 
-## index.md 템플릿
+## Template
 
 ```markdown
 ---
-최종수정: YYYY-MM-DD
-버전: v1.0
+last_updated: YYYY-MM-DD
+version: v1.0
 ---
 
-# [프로젝트명]
+# [Project Name]
 
-> [프로젝트 간략 설명 - 2~3문장. 어떤 서비스인지, 주요 기술 스택 포함]
+> [Two or three concise sentences explaining what the project is, who it serves, and the main technical stack.]
 
----
+## Contents
 
-## 목차
+### [Feature or Domain Category]
+- [Document Title](./feature-folder/document-name.md) - [Short purpose]
+- [Document Title](./feature-folder/document-name.md) - [Short purpose]
 
-### [기능 카테고리명]
-- [[문서 제목]](./[기능폴더]/[파일명].md) - [한 줄 설명]
-- [[문서 제목]](./[기능폴더]/[파일명].md) - [한 줄 설명]
-
-### [기능 카테고리명]
-- [[문서 제목]](./[기능폴더]/[파일명].md) - [한 줄 설명]
+### [Feature or Domain Category]
+- [Document Title](./another-feature/document-name.md) - [Short purpose]
 ```
 
----
+## Writing Rules
 
-## 작성 규칙
+- Keep the project description to two or three sentences.
+- Group links by feature or domain, for example `User Authentication`, `Orders`, `Payments`, `Database`, or localized equivalents.
+- Order categories by core product areas first, then supporting areas.
+- Use link text that matches the document title.
+- Use relative paths beginning with `./`.
+- Keep each link description to one short phrase.
+- Do not include detailed tables, code, diagrams, endpoint lists, or long explanations.
 
-### 프로젝트 설명
-- 2~3문장으로 간결하게
-- 서비스 목적 + 주요 기술 스택 포함
-- 예시:
-  ```
-  > 소상공인을 위한 재고 관리 웹 서비스.
-  > Frontend는 Vite + React + TypeScript, Backend는 .NET Core C#, DB는 MSSQL을 사용한다.
-  ```
+## Update Rules
 
-### 카테고리 구성
-- 기능 단위로 묶음: `사용자 인증`, `주문 관리`, `결제` 등
-- 카테고리명은 한국어로 작성
-- 카테고리 순서는 핵심 기능 → 부가 기능 순
+When adding a document:
+1. Add it to the most relevant category.
+2. Create a new category only when none fits.
+3. Update `last_updated`.
+4. Verify the new path exists.
 
-### 링크 형식
-```markdown
-- [ERD 설계서](./db/erd.md) - 전체 테이블 구조 및 관계 정의
-```
-- 링크 텍스트: 문서 제목
-- 경로: 상대 경로 사용 (`./` 로 시작)
-- 설명: 한 줄, 20자 이내로 간결하게
+When deleting or moving a document:
+1. Remove or update the index entry.
+2. Update `last_updated`.
+3. Search for links to the old path in other docs.
 
-### 절대 포함하지 않는 것
-- 상세 내용, 코드, 테이블 등 → 상세문서에서 다룸
-- 두 줄 이상의 설명
-
----
-
-## index.md 업데이트 절차
-
-### 새 문서 추가 시
-1. 해당 기능 카테고리를 찾아 항목 추가
-2. 카테고리가 없으면 새 카테고리 섹션 추가
-3. `최종수정` 날짜 업데이트
-4. 추가한 경로가 실제로 존재하는지 확인
-
-### 문서 삭제 시
-1. 해당 항목을 index.md에서 제거
-2. `최종수정` 날짜 업데이트
-
-### 링크 유효성 체크
-index.md 수정 후 반드시 모든 링크 경로를 확인한다.
-존재하지 않는 경로는 `⚠️ 경로 확인 필요` 표기 후 사용자에게 알린다.
+After any index edit, verify every markdown link in `docs/index.md`. If a target cannot be confirmed, append `[VERIFY PATH]`.
 
 ```markdown
-- [ERD 설계서](./db/erd.md) - 전체 테이블 구조 ⚠️ 경로 확인 필요
+- [ERD](./db/erd.md) - Database tables and relationships [VERIFY PATH]
 ```
 
----
-
-## 예시 index.md
+## Example
 
 ```markdown
 ---
-최종수정: 2025-01-15
-버전: v1.2
+last_updated: 2026-07-05
+version: v1.1
 ---
 
-# 재고 관리 시스템 (StockManager)
+# StockManager
 
-> 소상공인을 위한 실시간 재고 관리 웹 서비스.
-> Frontend는 Vite + React + TypeScript, Backend는 .NET Core C#, DB는 MSSQL을 사용한다.
+> StockManager is a real-time inventory management service for small retailers.
+> The frontend uses Vite, React, and TypeScript; the backend uses .NET and MSSQL.
 
----
+## Contents
 
-## 목차
+### Database
+- [ERD](./database/erd.md) - Tables and relationships
+- [Index Strategy](./database/index-strategy.md) - Query performance indexes
 
-### 데이터베이스
-- [ERD 설계서](./db/erd.md) - 전체 테이블 구조 및 관계 정의
-- [인덱스 전략](./db/index-strategy.md) - 쿼리 성능 최적화 인덱스 정의
+### User Authentication
+- [Authentication Flow](./user-auth/auth-flow.md) - Login and token lifecycle
+- [Permission Policy](./user-auth/permissions.md) - Role-based access rules
 
-### 사용자 인증
-- [인증 흐름 설계](./user-auth/auth-flow.md) - JWT 기반 로그인/토큰 관리
-- [권한 정책](./user-auth/permission.md) - Role별 접근 권한 정의
-
-### 재고 관리
-- [재고 API 명세](./inventory/api.md) - 재고 CRUD API 엔드포인트 정의
-- [재고 알림 설계](./inventory/alert.md) - 재고 부족 알림 로직 설계
+### Inventory
+- [Inventory API](./inventory/api.md) - Inventory CRUD endpoints
+- [Low-Stock Alerts](./inventory/alerts.md) - Alerting rules and thresholds
 ```

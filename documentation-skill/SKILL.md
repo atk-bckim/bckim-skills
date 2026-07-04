@@ -1,101 +1,90 @@
 ---
 name: documentation
-description: |
-  한국어 기술 문서를 docs/ 폴더 구조에 맞게 작성·관리하는 스킬.
-  다음 상황에서 반드시 이 스킬을 사용하라:
-  - "문서화해줘", "문서 만들어줘", "docs 정리해줘" 등의 요청
-  - ERD, 아키텍처, API, 기능 설계 문서 작성 요청
-  - 회의록, 기획서, 요구사항 정의서 작성 요청
-  - 기존 문서 수정, 업데이트, 링크 점검 요청
-  - 새 기능 추가 후 문서 반영 요청
+description: Use when creating, updating, organizing, or checking project docs in docs/, including ERD, architecture, API, requirements, planning, meeting notes, link checks, and documentation updates after feature work.
 ---
 
-# 문서화 스킬 (Documentation Skill)
+# Documentation Skill
 
-## 목적
+## Purpose
 
-이 스킬은 Claude가 `docs/` 기반 문서 구조를 일관성 있게 생성·수정·관리하도록 안내한다.
-설계 목표는 **빠른 탐색 + 토큰 최소화**:
-- `index.md`로 전체 구조를 파악
-- 필요한 상세문서만 선택적으로 읽음
-- 상세문서 내 목차로 필요한 줄만 바로 접근
+Create and maintain project documentation under `docs/` with a lightweight `index.md`, focused detail documents, valid links, and document language that matches the user's intent.
 
----
+## Language Policy
 
-## 폴더 구조
+- New documents: use the language explicitly requested by the user. If none is specified, match the language of the user's latest request.
+- Existing documents: preserve the document's current language unless the user asks to translate or rewrite it.
+- Mixed-language projects: follow the surrounding document or section language unless the user gives a stronger instruction.
+- Keep folder names, filenames, anchors, code identifiers, API paths, table names, column names, commands, and other technical literals in ASCII where practical.
+- Use lowercase kebab-case for feature folders and markdown filenames, for example `user-auth/auth-flow.md`.
 
-```
+## Layout
+
+```text
 docs/
-├── index.md                  ← 프로젝트 전체 목차 (항상 최신 유지)
-├── [기능명]/                  ← 기능 단위로 폴더 분리
-│   ├── [상세문서].md
-│   └── [상세문서].md
-└── [기능명]/
-    └── [상세문서].md
++-- index.md
++-- feature-name/
+|   +-- detail-document.md
+|   +-- another-detail.md
++-- another-feature/
+    +-- detail-document.md
 ```
 
-**폴더 네이밍 규칙:**
-- 영문 소문자, 하이픈 사용: `user-auth`, `order`, `payment`
-- 기능 단위로 분리 (문서 유형별 X, 기능별 O)
+Organize by feature or domain, not by document type. Keep `docs/index.md` current when documents are added, renamed, moved, or deleted.
 
----
+## Reference Routing
 
-## 문서 작성 규칙
+Read the matching reference before writing or changing docs:
 
-문서 종류별 상세 규칙은 아래 참조 파일을 읽어라:
-
-| 문서 종류 | 참조 파일 |
+| Task | Reference |
 |---|---|
-| index.md 작성/업데이트 | `references/index-guide.md` |
-| 상세문서 작성 | `references/detail-doc-guide.md` |
+| Create or update `docs/index.md` | `references/index-guide.md` |
+| Create or update any detail document shell | `references/detail-doc-guide.md` |
+| ERD, architecture, API, system design | `references/technical-design.md` |
+| Planning docs, product briefs, requirements | `references/planning.md` |
+| Meeting notes and action items | `references/meeting-notes.md` |
 
----
+For a type-specific document, read `detail-doc-guide.md` plus the relevant type-specific reference.
 
-## AI 동작 절차
+## Workflow
 
-### 새 문서 생성 시
+Create:
+1. Determine the target language from the Language Policy.
+2. Inspect `docs/index.md` if it exists.
+3. Create the feature folder using lowercase kebab-case if needed.
+4. Create the detail document from `detail-doc-guide.md` and any type-specific reference.
+5. Validate related-document links.
+6. Add or update the `docs/index.md` entry and validate index links.
 
-1. 기능 폴더가 없으면 새로 생성
-2. 상세문서 작성 (메타데이터 → 목차 → 본문 → 연관문서 순서)
-3. 연관문서 경로 유효성 확인
-4. `index.md`에 해당 항목 자동 추가 및 경로 유효성 확인
+Update:
+1. Preserve the existing language unless translation is requested.
+2. Update body content, metadata such as `last_updated`, and anchor-based contents.
+3. Preserve and recalculate line-number contents only when the existing document already uses them.
+4. Validate related-document links.
+5. Update `docs/index.md` if title, path, category, or summary changed.
 
-### 기존 문서 수정 시
+Delete or move:
+1. Remove or update the `docs/index.md` entry.
+2. Search for references to the old path.
+3. Update valid replacements, or mark unresolved references with `[VERIFY PATH]`.
+4. Report unresolved references to the user.
 
-1. 상세문서 본문 수정
-2. 메타데이터의 `최종수정` 날짜 업데이트
-3. 해당 문서 내 연관문서 경로 유효성 확인
-4. 문서 내 목차의 줄 번호 재계산 후 업데이트
+## Validation and Missing Info
 
-### 문서 삭제 시
+Validate every markdown link in `docs/index.md` after index edits, and every related-document link after detail document edits. If a path cannot be verified, keep the link visible and append `[VERIFY PATH]`.
 
-1. `index.md`에서 해당 항목 제거
-2. 다른 상세문서의 연관문서 섹션에서 해당 경로 참조 제거 또는 `[삭제됨]` 표기
+Ask only for information required to avoid misleading docs. If the user wants progress without answering, use `[TODO: ...]` placeholders.
 
----
-
-## 링크 유효성 체크 규칙
-
-| 체크 시점 | 체크 대상 |
+| Document type | Required context |
 |---|---|
-| index.md 수정 시 | index.md 내 모든 파일 경로 |
-| 상세문서 추가/수정 시 | 해당 문서 내 연관문서 경로 |
+| First `docs/index.md` | Project name and short project description |
+| Technical design | Feature or system name, stack, main components |
+| Meeting notes | Meeting date, attendees, agenda or topic |
+| Planning or requirements | Project or feature name, purpose, core scope |
 
-경로가 유효하지 않으면:
-- 해당 경로 옆에 `⚠️ 경로 확인 필요` 표기
-- 사용자에게 명시적으로 알림
+## Common Mistakes
 
----
-
-## 사용자 입력이 부족할 때
-
-필수 정보가 없으면 문서 작성 전에 반드시 확인하라:
-
-| 문서 유형 | 필수 확인 항목 |
-|---|---|
-| index.md 최초 생성 | 프로젝트명, 프로젝트 간략 설명 |
-| 기술 설계 문서 | 기능명, 기술 스택, 주요 구성 요소 |
-| 회의록 | 회의 날짜, 참석자, 주요 안건 |
-| 기획서 | 프로젝트명, 목적, 주요 기능 범위 |
-
-정보가 없으면 `[TODO: 내용 보완 필요]` 플레이스홀더를 사용하라.
+- Do not force Korean or English when the user language or existing document language says otherwise.
+- Do not duplicate detail content inside `docs/index.md`.
+- Do not create document-type folders such as `erd/` or `meetings/` unless the project already does.
+- Do not use emoji status markers; use text values such as `Not started`, `In progress`, `Done`, `Blocked`, or `Canceled`.
+- Do not require line-number contents for new documents.

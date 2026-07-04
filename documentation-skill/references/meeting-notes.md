@@ -1,116 +1,81 @@
-# 회의록 작성 가이드
+# Meeting Notes Guide
 
-회의록은 회의에서 논의된 내용, 결정사항, 액션 아이템을 명확하게 기록하는 문서다.
+Use this reference for meeting notes, decision logs from meetings, and action-item summaries. Start with the shell in `detail-doc-guide.md`, then use the body sections below.
 
----
+Apply the skill language policy. Localize headings, table labels, status values, and prose into the target document language. Keep project codes, issue IDs, file paths, API paths, and technical identifiers unchanged.
 
-## 회의록 템플릿
+## Meeting Notes Body Sections
 
 ```markdown
----
-문서제목: [프로젝트명] 회의록 - [주제]
-문서유형: 회의록
-작성일: YYYY-MM-DD
-최종수정: YYYY-MM-DD
-버전: v1.0
-상태: 확정
-태그: [회의록, 프로젝트명]
----
+## Meeting Information
 
-# [프로젝트명] 회의록
-
-## 회의 기본 정보
-
-| 항목 | 내용 |
+| Field | Value |
 |---|---|
-| 회의 일시 | YYYY-MM-DD HH:MM ~ HH:MM |
-| 장소 / 방식 | 사무실 / 온라인 (Zoom, Teams 등) |
-| 참석자 | 홍길동 (PM), 김철수 (개발), 이영희 (디자인) |
-| 불참자 | [이름 (사유)] |
-| 작성자 | 홍길동 |
-| 다음 회의 | YYYY-MM-DD |
+| Date and time | YYYY-MM-DD HH:MM to HH:MM |
+| Location or medium | [Office, Teams, Zoom, async, etc.] |
+| Attendees | [Name (role), Name (role)] |
+| Absent | [Name (reason)] |
+| Facilitator | [Name] |
+| Note taker | [Name] |
+| Next meeting | YYYY-MM-DD |
 
-## 안건 목록
+## Agenda
 
-| # | 안건 | 담당자 | 소요시간 |
+| # | Topic | Owner | Time |
 |---|---|---|---|
-| 1 | [안건 제목] | [이름] | 10분 |
-| 2 | [안건 제목] | [이름] | 20분 |
+| 1 | [Topic] | [Owner] | 10 min |
+| 2 | [Topic] | [Owner] | 20 min |
 
----
+## Discussion
 
-## 안건별 논의 내용
+### 1. [Topic]
 
-### 1. [안건 제목]
+**Summary**
 
-**논의 내용**
+- [Concise summary of the discussion.]
+- [Important alternatives, objections, or constraints.]
 
-- [논의한 주요 내용을 bullet로 기록]
-- [이견이 있었다면 각자의 의견도 기록]
+**Decision**
 
-**결정사항**
+Decision: [Decision made, or "No decision".]
 
-> ✅ [결정된 내용을 명확하게 한 줄로 기록]
+**Open Questions**
 
-**보류/미결 사항**
+- [Question or unresolved issue.]
 
-> ⏸️ [결정하지 못한 사항 및 이유]
+### 2. [Topic]
 
----
+**Summary**
 
-### 2. [안건 제목]
+- [Concise summary.]
 
-**논의 내용**
+**Decision**
 
-- [내용]
+Decision: [Decision made, or "No decision".]
 
-**결정사항**
+## Action Items
 
-> ✅ [결정 내용]
-
----
-
-## 액션 아이템 (Action Items)
-
-> ⚠️ 이 섹션이 가장 중요하다. 누가 무엇을 언제까지 할지 반드시 명시하라.
-
-| # | 할 일 | 담당자 | 마감일 | 상태 |
+| # | Action | Owner | Due Date | Status |
 |---|---|---|---|---|
-| 1 | [구체적인 작업 내용] | 홍길동 | YYYY-MM-DD | 🔲 미완료 |
-| 2 | [구체적인 작업 내용] | 김철수 | YYYY-MM-DD | 🔲 미완료 |
+| 1 | [Start with a concrete verb] | [Owner] | YYYY-MM-DD | Not started |
+| 2 | [Start with a concrete verb] | [Owner] | YYYY-MM-DD | Not started |
 
-**상태 코드**:
-- 🔲 미완료
-- 🔄 진행중
-- ✅ 완료
-- ❌ 취소
+## Notes and Risks
 
----
+- [Risks, dependencies, reference links, or follow-up context.]
 
-## 특이사항 / 기타
+## Next Meeting Agenda
 
-- [회의 중 언급된 참고사항, 리스크, 공유 링크 등]
-
-## 다음 회의 예정 안건
-
-| # | 안건 | 준비 필요사항 |
+| # | Topic | Preparation Needed |
 |---|---|---|
-| 1 | [안건] | [준비물] |
-
-## 변경이력
-
-| 버전 | 날짜 | 작성자 | 변경내용 |
-|---|---|---|---|
-| v1.0 | YYYY-MM-DD | - | 최초 작성 |
+| 1 | [Topic] | [Preparation] |
 ```
 
----
+## Writing Rules
 
-## 회의록 작성 팁
-
-- 논의 내용은 결론 위주로 간결하게 기록 (대화 전체를 받아쓰지 않음)
-- 결정사항과 미결사항을 반드시 구분하여 기록
-- 액션 아이템은 동사로 시작하는 구체적인 문장으로 작성
-  - 좋은 예: `API 명세서 1차 초안 작성 후 공유`
-  - 나쁜 예: `API 관련 작업`
-- 회의 직후 24시간 내에 작성하고 참석자에게 공유
+- Summarize decisions and outcomes; do not transcribe the whole conversation.
+- Keep decisions, open questions, and action items separate.
+- Write action items as concrete tasks that start with a verb.
+- Use plain text statuses: `Not started`, `In progress`, `Done`, `Blocked`, `Canceled`, or localized equivalents.
+- Mark missing owners, dates, or decisions with `[TODO: ...]`.
+- Link follow-up design docs, requirements, or issue references through the related-documents section.
