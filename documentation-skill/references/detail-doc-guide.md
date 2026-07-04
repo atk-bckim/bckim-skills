@@ -94,4 +94,4 @@ tags: [tag-one, tag-two]
 - [ ] Update anchor contents.
 - [ ] Recalculate line numbers only if the document already uses them.
 - [ ] Verify related-document links.
-- [ ] Check whether `docs/index.md` needs a title, path, category, or summary update.
+- [ ] Check whether `<doc-root>/index.md` needs a title, path, category, or summary update.

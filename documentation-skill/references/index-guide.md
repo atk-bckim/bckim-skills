@@ -1,6 +1,6 @@
 # index.md Guide
 
-`docs/index.md` is the entry point for project documentation. Keep it short: it should help people and agents find the right detail document, not repeat the detail document.
+`<doc-root>/index.md` is the entry point for project documentation. `<doc-root>` is the documentation folder requested by the user or the existing project documentation root. Keep the index short: it should help people and agents find the right detail document, not repeat the detail document.
 
 Apply the skill language policy. Localize headings, labels, descriptions, and category names into the target document language. Keep paths and filenames ASCII/lowercase kebab-case where practical.
 
@@ -49,7 +49,7 @@ When deleting or moving a document:
 2. Update `last_updated`.
 3. Search for links to the old path in other docs.
 
-After any index edit, verify every markdown link in `docs/index.md`. If a target cannot be confirmed, append `[VERIFY PATH]`.
+After any index edit, verify every markdown link in `<doc-root>/index.md`. If a target cannot be confirmed, append `[VERIFY PATH]`.
 
 ```markdown
 - [ERD](./db/erd.md) - Database tables and relationships [VERIFY PATH]

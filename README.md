@@ -3,34 +3,31 @@
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/X5U822ISS0)
 [![sponsors/atk-bckim](https://img.shields.io/badge/sponsors%2Fatk--bckim-EA4AAA?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/atk-bckim)
 
-A personal collection of reusable Codex skills.
+Reusable Codex skills for AI vibe coders who care about context, token cost, and repeatable workflows.
+
+The goal is simple: keep the agent from reading everything when it only needs the next useful slice.
 
 ## Skills
 
-| Skill | Path | Purpose |
-|---|---|---|
-| documentation | `documentation-skill/` | Create, update, organize, and check project documentation under `docs/`, using the user's language for new documents and preserving existing document language on updates. |
+| Skill | Path | What it does | Details |
+|---|---|---|---|
+| documentation | `documentation-skill/` | Creates, updates, reads, and navigates project documentation in the user's selected folder. | [docs/documentation-skill.md](docs/documentation-skill.md) |
 
-## Structure
+## Why This Exists
 
-Each skill is kept in its own folder:
+AI coding sessions get messy when every request reloads broad instructions, old specs, meeting notes, and unrelated templates. These skills are written to route the agent through small entry points first, then load detailed references only when the task actually needs them.
+
+## Skill Shape
 
 ```text
 skill-folder/
 +-- SKILL.md
 +-- references/
-    +-- supporting-guide.md
+    +-- focused-guide.md
 ```
 
-`SKILL.md` contains the trigger metadata and core workflow. Reference files hold detailed templates or guidance that should be loaded only when needed.
+`SKILL.md` should stay small and act as the router. `references/` should hold focused guides that are loaded only for matching tasks.
 
-## Usage
+## Docs
 
-Use the skill folders from this repository as personal Codex skills. Keep each skill self-contained, with only the files required for the agent to perform the task.
-
-When updating a skill:
-
-1. Keep the frontmatter `name` stable unless the skill is intentionally renamed.
-2. Keep `description` focused on when the skill should trigger.
-3. Prefer concise `SKILL.md` files and move detailed templates into `references/`.
-4. Validate the skill before committing changes.
+- [Documentation skill details](docs/documentation-skill.md)
