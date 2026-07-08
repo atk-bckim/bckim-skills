@@ -1,0 +1,317 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tkform.local/tkform.schema.json",
+  "title": "tkform project file",
+  "description": "Project file for the tkform VS Code extension. Describes a Tkinter GUI (canvas, widgets, events, variables, menus, resources). This schema covers structural shape only; per-widget prop allow-lists, cross-references, duplicate-id checks, Python code compilation, and layout mixing are enforced by the engine validator (run `scripts/validate_project.py`).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["name", "canvasWidth", "canvasHeight", "widgets"],
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 2,
+      "description": "Schema version. The designer always normalizes loaded files to 2; write 2 in new files. (Files written as 1 are still accepted but will be migrated on save.)"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Project / window name. Used as the export filename base."
+    },
+    "canvasWidth": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Initial Tkinter root window width in pixels. Also the design canvas width."
+    },
+    "canvasHeight": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Initial Tkinter root window height in pixels. Also the design canvas height."
+    },
+    "widgets": {
+      "type": "array",
+      "description": "Widget instances. Each becomes a Tkinter widget in the generated Python. See references/widgets.md for the per-type prop allow-list.",
+      "items": { "$ref": "#/definitions/widget" },
+      "maxItems": 2000
+    },
+    "tkTheme": {
+      "type": "string",
+      "description": "ttk theme name. Common values: 'default', 'clam', 'alt', 'classic'. Falls back to 'default' if the runtime lacks the requested theme."
+    },
+    "menuBar": {
+      "oneOf": [
+        { "type": "null" },
+        { "$ref": "#/definitions/menuBar" }
+      ],
+      "description": "Top-level menu bar. null/omitted = no menu bar. See references/menus.md."
+    },
+    "rootBg": {
+      "type": "string",
+      "description": "Root window background color (e.g. '#ffffff'). Empty string = Tkinter default."
+    },
+    "rootResizable": {
+      "type": "boolean",
+      "description": "Whether the root window can be resized by the user."
+    },
+    "variables": {
+      "type": "array",
+      "description": "Tk variable declarations (StringVar/IntVar/DoubleVar/BooleanVar). Widgets reference these by name via props.variable / props.textvariable. See references/variables.md.",
+      "items": { "$ref": "#/definitions/tkVariable" },
+      "maxItems": 500
+    },
+    "nonVisuals": {
+      "type": "array",
+      "description": "Non-visual components: Timer, FileDialog, ColorChooser, MessageBox. See references/non-visuals.md.",
+      "items": { "$ref": "#/definitions/nonVisual" },
+      "maxItems": 500
+    },
+    "resources": {
+      "type": "array",
+      "description": "Image resources embedded as base64 data URLs. Widgets reference these by id via props.image. See references/resources.md.",
+      "items": { "$ref": "#/definitions/resource" },
+      "maxItems": 200
+    }
+  },
+
+  "definitions": {
+    "pythonIdentifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+      "description": "Must be a valid Python identifier (not a reserved keyword). The engine rejects keywords like 'class', 'for', etc."
+    },
+
+    "widget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "name"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Stable unique id within the project. Used as parentId target and bindings target. Convention: '<type>-<slug>' e.g. 'frame-login', 'button-save'."
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "Button", "Label", "Entry", "Text", "Checkbutton", "Radiobutton",
+            "Listbox", "Scale", "Frame", "LabelFrame", "Canvas", "PanedWindow",
+            "TtkPanedWindow", "OptionMenu", "Spinbox", "Scrollbar", "Separator",
+            "Notebook", "Toplevel", "Progressbar", "Combobox", "Treeview",
+            "Sizegrip", "Menubutton", "Message"
+          ],
+          "description": "Widget type. Maps directly to a Tkinter widget class. ttk widgets (Notebook, Progressbar, Combobox, Treeview, Sizegrip, Separator, TtkPanedWindow) cannot use bg/fg/padx/pady/etc. See references/widgets.md."
+        },
+        "name": {
+          "$ref": "#/definitions/pythonIdentifier",
+          "description": "Becomes the Python attribute name on the generated UI object. Must be unique across widgets."
+        },
+        "parentId": {
+          "oneOf": [
+            { "type": "null" },
+            { "type": "string", "minLength": 1 }
+          ],
+          "description": "Parent widget id, or null for direct children of the root window. The parent MUST be a container type (Frame, LabelFrame, Canvas, PanedWindow, TtkPanedWindow, Notebook, Toplevel). See references/layout.md."
+        },
+        "x": { "type": "number", "description": "X position (place layout) or design hint (grid layout)." },
+        "y": { "type": "number", "description": "Y position (place layout) or design hint (grid layout)." },
+        "width": { "type": "integer", "minimum": 1 },
+        "height": { "type": "integer", "minimum": 1 },
+        "props": {
+          "type": "object",
+          "description": "Tkinter widget options. The allowed keys depend on `type`. IMPORTANT: a `command` key here must be a Python identifier reference (e.g. 'self.on_click'); for inline code use `events.command` instead. See references/widgets.md for the per-type allow-list.",
+          "additionalProperties": true
+        },
+        "locked": { "type": "boolean", "description": "Designer-only: locks the widget against accidental drag in the canvas. Has no effect on generated code." },
+        "designer": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "locked": { "type": "boolean" },
+            "tabIndex": { "type": "integer", "minimum": 0, "description": "Designer-only: Notebook tab order hint." },
+            "activeTab": { "type": "integer", "minimum": 0, "description": "Designer-only: which Notebook tab is selected in the editor." }
+          }
+        },
+        "bindings": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "xscrollcommand": { "type": "string", "description": "Widget id whose xscrollcommand this widget drives (typically a Scrollbar)." },
+            "yscrollcommand": { "type": "string", "description": "Widget id whose yscrollcommand this widget drives (typically a Scrollbar)." },
+            "command": { "type": "string", "description": "For Scrollbar: target widget id being scrolled. The target must be a scrollable type (Text, Listbox, Entry, Treeview)." }
+          },
+          "description": "Scroll wiring. See references/complex-widgets.md#scrollbar."
+        },
+        "events": {
+          "description": "Event handlers. Two forms are both accepted. MAP form: { 'command': 'print(1)' } or { '<Leave>': { handlerName, code } }. ARRAY form: [{ id, event, kind, handlerName, code, enabled }]. See references/events.md.",
+          "oneOf": [
+            { "type": "object" },
+            { "type": "array", "items": { "$ref": "#/definitions/eventHandler" } }
+          ]
+        },
+        "layoutManager": {
+          "type": "string",
+          "enum": ["place", "grid"],
+          "description": "Per-widget layout manager. Children of the SAME parent must all use the same manager, EXCEPT children of Toplevel, PanedWindow, TtkPanedWindow. Omitting implies 'place'. See references/layout.md."
+        },
+        "gridRow": { "type": "integer", "minimum": 0 },
+        "gridCol": { "type": "integer", "minimum": 0 },
+        "gridRowSpan": { "type": "integer", "minimum": 1 },
+        "gridColSpan": { "type": "integer", "minimum": 1 },
+        "gridSticky": { "type": "string", "description": "Tkinter sticky spec, e.g. 'nsew', 'ew', 'n+s'." },
+        "gridPadX": { "type": "number", "minimum": 0 },
+        "gridPadY": { "type": "number", "minimum": 0 },
+        "gridIPadX": { "type": "number", "minimum": 0 },
+        "gridIPadY": { "type": "number", "minimum": 0 }
+      }
+    },
+
+    "eventHandler": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["event"],
+      "properties": {
+        "id": { "type": "string", "description": "Stable unique id, e.g. 'event-save'." },
+        "event": {
+          "type": "string",
+          "description": "Tk event name. 'command' (button/selection command) or a Tk bind sequence such as '<Leave>', '<Button-1>', '<Key>'."
+        },
+        "kind": { "type": "string", "enum": ["command", "bind"], "description": "Ignored — derived from `event` (event=='command' => kind='command')." },
+        "handlerName": {
+          "$ref": "#/definitions/pythonIdentifier",
+          "description": "Generated Python method name. If omitted, an anonymous handler is generated. Must be unique across ALL enabled handlers in the project."
+        },
+        "code": { "type": "string", "description": "Python code body. Compiled with `def <handlerName>(event=None): <code>`; must be syntactically valid. May reference Tk variables by name (e.g. 'filter_var.get()')." },
+        "enabled": { "type": "boolean", "description": "If false, the handler is skipped at codegen time." }
+      }
+    },
+
+    "tkVariable": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "varType"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "name": {
+          "$ref": "#/definitions/pythonIdentifier",
+          "description": "Python attribute name. Widgets reference this via props.variable / props.textvariable."
+        },
+        "varType": {
+          "type": "string",
+          "enum": ["StringVar", "IntVar", "DoubleVar", "BooleanVar"]
+        },
+        "defaultValue": {
+          "type": "string",
+          "description": "Initial value as a string. The engine casts to the var type. For BooleanVar use '1'/'0' or 'True'/'False'."
+        }
+      }
+    },
+
+    "nonVisual": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "name"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "type": {
+          "type": "string",
+          "enum": ["Timer", "FileDialog", "ColorChooser", "MessageBox"],
+          "description": "See references/non-visuals.md. FileDialog has a special `filetypes` prop parsing rule."
+        },
+        "name": { "$ref": "#/definitions/pythonIdentifier" },
+        "props": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Type-specific configuration. See references/non-visuals.md."
+        },
+        "events": {
+          "description": "Same shape as widget events. Timer typically binds 'command' (tick). See references/events.md.",
+          "oneOf": [
+            { "type": "object" },
+            { "type": "array", "items": { "$ref": "#/definitions/eventHandler" } }
+          ]
+        }
+      }
+    },
+
+    "resource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Display name; converted to a Python identifier for the resource attribute. Avoid spaces/symbols."
+        },
+        "type": { "type": "string", "const": "image" },
+        "dataUrl": {
+          "type": "string",
+          "description": "Base64 data URL ('data:image/png;base64,...'). Decoded payload must be <= 5MB and valid base64."
+        }
+      }
+    },
+
+    "menuBar": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["menus"],
+      "properties": {
+        "menus": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/menu" },
+          "description": "Top-level menus, left to right."
+        }
+      }
+    },
+
+    "menu": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "items"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "label": { "type": "string", "description": "Menu label as shown on the menu bar (e.g. 'File', 'Edit')." },
+        "items": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/menuItem" },
+          "description": "Items in display order. Cascade items contain nested `children`."
+        }
+      }
+    },
+
+    "menuItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "label": { "type": "string", "description": "Display label. Required for non-separator items." },
+        "kind": {
+          "type": "string",
+          "enum": ["command", "separator", "checkbutton", "radiobutton", "cascade"],
+          "description": "Item behavior. 'cascade' items have non-empty `children`. 'separator' renders a horizontal rule. Defaults to 'command'."
+        },
+        "separator": { "type": "boolean", "description": "Shorthand: true forces kind='separator'." },
+        "accelerator": { "type": "string", "description": "Display-only hint shown on the right (e.g. 'Ctrl+R')." },
+        "acceleratorBinding": { "type": "string", "description": "Tk bind sequence that actually triggers the item (e.g. '<Control-r>'). Bound on root." },
+        "variable": {
+          "$ref": "#/definitions/pythonIdentifier",
+          "description": "For checkbutton/radiobutton: the Tk variable to bind. Must be declared in `variables`."
+        },
+        "value": { "type": "string", "description": "For radiobutton: the value this choice writes to `variable`." },
+        "events": {
+          "description": "Handlers. For 'command' items the 'command' event fires on click.",
+          "oneOf": [
+            { "type": "object" },
+            { "type": "array", "items": { "$ref": "#/definitions/eventHandler" } }
+          ]
+        },
+        "children": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/menuItem" },
+          "description": "Submenu items (only meaningful when kind='cascade'). Subject to the same max nesting depth (64) as widgets."
+        }
+      }
+    }
+  }
+}
