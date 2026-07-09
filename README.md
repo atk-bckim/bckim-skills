@@ -12,6 +12,7 @@ The goal is simple: keep the agent from reading everything when it only needs th
 | Skill | Path | What it does | Details |
 |---|---|---|---|
 | documentation | `documentation-skill/` | Creates, updates, reads, and navigates project documentation in the user's selected folder. | [docs/documentation-skill.md](docs/documentation-skill.md) |
+| tkform-author | `tkform-author/` | Creates and edits validated `.tkform.json` Tkinter GUI projects for the tkform VS Code extension. | [docs/tkform-author.md](docs/tkform-author.md) |
 
 ## Why This Exists
 
@@ -31,3 +32,4 @@ skill-folder/
 ## Docs
 
 - [Documentation skill details](docs/documentation-skill.md)
+- [tkform-author skill details](docs/tkform-author.md)
