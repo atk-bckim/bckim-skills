@@ -42,9 +42,8 @@ The skill should route to the smallest useful reference before editing.
 ## Structure
 
 ```text
-tkform-author/
+TKform-skill/
 +-- SKILL.md
-+-- tkform.schema.json
 +-- scripts/
 |   +-- validate_project.py
 +-- references/
@@ -57,11 +56,12 @@ tkform-author/
     +-- non-visuals.md
     +-- resources.md
     +-- validation.md
+    +-- tkform.schema.json
 ```
 
 `SKILL.md` is the router. It gives the 30-second model, minimal valid project, traps, workflow, and a reference selection table.
 
-`tkform.schema.json` provides structural shape for `.tkform.json` files.
+`references/tkform.schema.json` provides structural shape for `.tkform.json` files.
 
 `scripts/validate_project.py` validates a project with the same engine behavior that the tkform extension uses, when the engine package is available.
 
@@ -71,7 +71,7 @@ Current word counts:
 
 | File | Role | Words |
 |---|---:|---:|
-| `tkform-author/SKILL.md` | Router, mental model, traps, workflow | 1052 |
+| `TKform-skill/SKILL.md` | Router, mental model, traps, workflow | 1085 |
 | `references/widgets.md` | Widget fields and prop allow-list | 1379 |
 | `references/complex-widgets.md` | Treeview, Notebook, PanedWindow, Canvas, Toplevel, Scrollbar | 721 |
 | `references/events.md` | Event forms, bindings, handler rules | 848 |
@@ -80,9 +80,9 @@ Current word counts:
 | `references/menus.md` | Menu bar and menu item structure | 569 |
 | `references/non-visuals.md` | Timer, FileDialog, ColorChooser, MessageBox | 632 |
 | `references/resources.md` | Embedded image resources | 373 |
-| `references/validation.md` | Diagnostics and limits | 1039 |
-| `tkform.schema.json` | JSON Schema | 1561 |
-| `scripts/validate_project.py` | Validator wrapper | 361 |
+| `references/validation.md` | Diagnostics and limits | 1117 |
+| `references/tkform.schema.json` | JSON Schema | 1561 |
+| `scripts/validate_project.py` | Validator wrapper | 940 |
 
 Typical load paths:
 
@@ -96,7 +96,7 @@ Typical load paths:
 | Add a menu bar | `SKILL.md`, `menus.md`, `events.md` if menu commands run code |
 | Add embedded images | `SKILL.md`, `resources.md`, relevant widget rows from `widgets.md` |
 
-The full skill is about 9.5k words including schema and validator wrapper. The intended behavior is not to load that full set by default.
+The full skill is about 10.3k words including schema and validator wrapper. The intended behavior is not to load that full set by default.
 
 ## Validation Workflow
 
@@ -108,7 +108,7 @@ The expected loop is:
 4. Run the validator:
 
 ```bash
-python tkform-author/scripts/validate_project.py path/to/file.tkform.json
+python TKform-skill/scripts/validate_project.py path/to/file.tkform.json
 ```
 
 When the skill is installed into an agent skill directory, use the validator path from that installed location.
