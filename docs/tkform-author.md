@@ -71,16 +71,18 @@ Current word counts:
 
 | File | Role | Words |
 |---|---:|---:|
-| `TKform-skill/SKILL.md` | Router, mental model, traps, workflow | 1085 |
-| `references/widgets.md` | Widget fields and prop allow-list | 1379 |
-| `references/complex-widgets.md` | Treeview, Notebook, PanedWindow, Canvas, Toplevel, Scrollbar | 721 |
-| `references/events.md` | Event forms, bindings, handler rules | 848 |
-| `references/variables.md` | Tk variable declarations and references | 532 |
-| `references/layout.md` | `place` vs `grid`, parent rules | 496 |
+| `TKform-skill/SKILL.md` | Router, mental model, traps, workflow | 1419 |
+| `references/widgets.md` | Widget fields and prop allow-list | 1644 |
+| `references/complex-widgets.md` | Treeview, Notebook, PanedWindow, Canvas, Toplevel, Scrollbar | 734 |
+| `references/events.md` | Event forms, bindings, handler rules | 903 |
+| `references/variables.md` | Tk variable declarations and references | 536 |
+| `references/layout.md` | `place`/`grid`/`pack`, parent rules | 682 |
 | `references/menus.md` | Menu bar and menu item structure | 569 |
-| `references/non-visuals.md` | Timer, FileDialog, ColorChooser, MessageBox | 632 |
+| `references/non-visuals.md` | Timer/FileDialog/ColorChooser/MessageBox + ttkbootstrap dialogs | 1253 |
 | `references/resources.md` | Embedded image resources | 373 |
-| `references/validation.md` | Diagnostics and limits | 1117 |
+| `references/animations.md` | Declarative animations (presets, triggers, targets) | 838 |
+| `references/ttkbootstrap.md` | Toolkit block, themes, bootstyle, provider widgets | 754 |
+| `references/validation.md` | Diagnostics and limits | 1677 |
 | `references/tkform.schema.json` | JSON Schema | 1561 |
 | `scripts/validate_project.py` | Validator wrapper | 940 |
 
