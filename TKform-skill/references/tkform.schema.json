@@ -1,16 +1,28 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://tkform.local/tkform.schema.json",
-  "title": "tkform project file",
-  "description": "Project file for the tkform VS Code extension. Describes a Tkinter GUI (canvas, widgets, events, variables, menus, resources). This schema covers structural shape only; per-widget prop allow-lists, cross-references, duplicate-id checks, Python code compilation, and layout mixing are enforced by the engine validator (run `scripts/validate_project.py`).",
+  "title": "TK-Form project file",
+  "description": "Project file for the TK-Form VS Code extension. Describes a Tkinter GUI (canvas, widgets, events, variables, menus, resources). This schema covers structural shape only; per-widget prop allow-lists, cross-references, duplicate-id checks, Python code compilation, and layout mixing are enforced by the engine validator (run `scripts/validate_project.py`).",
   "type": "object",
   "additionalProperties": false,
   "required": ["name", "canvasWidth", "canvasHeight", "widgets"],
+  "allOf": [
+    {
+      "if": {
+        "properties": { "schemaVersion": { "const": 4 } },
+        "required": ["schemaVersion"]
+      },
+      "then": {
+        "required": ["toolkit"],
+        "not": { "required": ["tkTheme"] }
+      }
+    }
+  ],
   "properties": {
     "schemaVersion": {
       "type": "integer",
-      "const": 2,
-      "description": "Schema version. The designer always normalizes loaded files to 2; write 2 in new files. (Files written as 1 are still accepted but will be migrated on save.)"
+      "enum": [1, 2, 3, 4],
+      "description": "Schema version. The designer normalizes v1/v2/v3 files to v4 on save."
     },
     "name": {
       "type": "string",
@@ -33,9 +45,14 @@
       "items": { "$ref": "#/definitions/widget" },
       "maxItems": 2000
     },
+    "toolkit": {
+      "$ref": "#/definitions/toolkit",
+      "description": "Active UI toolkit and theme. Required for schema v4; omitted legacy projects normalize to tkinter."
+    },
     "tkTheme": {
       "type": "string",
-      "description": "ttk theme name. Common values: 'default', 'clam', 'alt', 'classic'. Falls back to 'default' if the runtime lacks the requested theme."
+      "deprecated": true,
+      "description": "Deprecated v1-v3 ttk theme name. Schema v4 stores this value in toolkit.theme."
     },
     "menuBar": {
       "oneOf": [
@@ -52,6 +69,29 @@
       "type": "boolean",
       "description": "Whether the root window can be resized by the user."
     },
+    "rootTitle": {
+      "type": "string",
+      "description": "Window title. Defaults to the project name when omitted."
+    },
+    "rootIconImageId": {
+      "type": "string",
+      "description": "Image resource id used as the window icon via root.iconphoto(). Must reference an entry in `resources`."
+    },
+    "rootMinWidth": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Minimum window width passed to root.minsize(). Both rootMinWidth and rootMinHeight must be set for minsize to apply."
+    },
+    "rootMinHeight": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Minimum window height passed to root.minsize(). Both rootMinWidth and rootMinHeight must be set for minsize to apply."
+    },
+    "rootPosition": {
+      "type": "string",
+      "enum": ["default", "screenCenter"],
+      "description": "Startup window placement. 'default' lets the window manager decide; 'screenCenter' centers the window on the primary screen."
+    },
     "variables": {
       "type": "array",
       "description": "Tk variable declarations (StringVar/IntVar/DoubleVar/BooleanVar). Widgets reference these by name via props.variable / props.textvariable. See references/variables.md.",
@@ -60,7 +100,7 @@
     },
     "nonVisuals": {
       "type": "array",
-      "description": "Non-visual components: Timer, FileDialog, ColorChooser, MessageBox. See references/non-visuals.md.",
+      "description": "Non-visual components: Timer, FileDialog, ColorChooser, MessageBox, plus ttkbootstrap-only TtkMessagebox, Querybox, DatePickerDialog, ColorPickerDialog, ToastNotification, and ToolTip. See references/non-visuals.md.",
       "items": { "$ref": "#/definitions/nonVisual" },
       "maxItems": 500
     },
@@ -69,14 +109,81 @@
       "description": "Image resources embedded as base64 data URLs. Widgets reference these by id via props.image. See references/resources.md.",
       "items": { "$ref": "#/definitions/resource" },
       "maxItems": 200
+    },
+    "animations": {
+      "type": "array",
+      "description": "Declarative widget animations compiled to Tkinter after() callbacks.",
+      "items": { "$ref": "#/definitions/animation" },
+      "maxItems": 500
     }
   },
 
   "definitions": {
+    "toolkit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "theme"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "enum": ["tkinter", "ttkbootstrap"]
+        },
+        "majorVersion": {
+          "type": "integer"
+        },
+        "theme": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "name": { "const": "ttkbootstrap" } },
+            "required": ["name"]
+          },
+          "then": {
+            "required": ["majorVersion"],
+            "properties": { "majorVersion": { "const": 2 } }
+          },
+          "else": {
+            "not": { "required": ["majorVersion"] }
+          }
+        }
+      ]
+    },
+
+    "widgetToolkitProps": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tkinter": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "ttkbootstrap": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "bootstyle": { "type": "string" },
+            "icon": { "type": "string" },
+            "iconSize": { "type": "integer", "minimum": 8, "maximum": 128 },
+            "iconOnly": { "type": "boolean" }
+          }
+        }
+      }
+    },
+
     "pythonIdentifier": {
       "type": "string",
       "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
       "description": "Must be a valid Python identifier (not a reserved keyword). The engine rejects keywords like 'class', 'for', etc."
+    },
+
+    "pythonIdentifierUnicode": {
+      "type": "string",
+      "pattern": "^[^0-9\\s][^\\s]*$",
+      "description": "Must be a valid Python identifier. Unicode letters are allowed per PEP 3131 (e.g. 'save_settings', '保存设置', '저장하기'), but the name must be NFKC-stable and must not be a Python keyword; the engine validator enforces this authoritatively."
     },
 
     "widget": {
@@ -96,7 +203,8 @@
             "Listbox", "Scale", "Frame", "LabelFrame", "Canvas", "PanedWindow",
             "TtkPanedWindow", "OptionMenu", "Spinbox", "Scrollbar", "Separator",
             "Notebook", "Toplevel", "Progressbar", "Combobox", "Treeview",
-            "Sizegrip", "Menubutton", "Message"
+            "Sizegrip", "Menubutton", "Message", "DateEntry", "LabeledScale",
+            "Meter", "Floodgauge", "Tableview", "ScrolledText", "ScrolledFrame"
           ],
           "description": "Widget type. Maps directly to a Tkinter widget class. ttk widgets (Notebook, Progressbar, Combobox, Treeview, Sizegrip, Separator, TtkPanedWindow) cannot use bg/fg/padx/pady/etc. See references/widgets.md."
         },
@@ -109,7 +217,7 @@
             { "type": "null" },
             { "type": "string", "minLength": 1 }
           ],
-          "description": "Parent widget id, or null for direct children of the root window. The parent MUST be a container type (Frame, LabelFrame, Canvas, PanedWindow, TtkPanedWindow, Notebook, Toplevel). See references/layout.md."
+          "description": "Parent widget id, or null for direct children of the root window. The parent MUST be a container type (Frame, LabelFrame, Canvas, PanedWindow, TtkPanedWindow, Notebook, Toplevel, ScrolledFrame). See references/layout.md."
         },
         "x": { "type": "number", "description": "X position (place layout) or design hint (grid layout)." },
         "y": { "type": "number", "description": "Y position (place layout) or design hint (grid layout)." },
@@ -119,6 +227,10 @@
           "type": "object",
           "description": "Tkinter widget options. The allowed keys depend on `type`. IMPORTANT: a `command` key here must be a Python identifier reference (e.g. 'self.on_click'); for inline code use `events.command` instead. See references/widgets.md for the per-type allow-list.",
           "additionalProperties": true
+        },
+        "toolkitProps": {
+          "$ref": "#/definitions/widgetToolkitProps",
+          "description": "Provider-specific visual options. Both provider bags are preserved; only the active widget backend consumes its bag."
         },
         "locked": { "type": "boolean", "description": "Designer-only: locks the widget against accidental drag in the canvas. Has no effect on generated code." },
         "designer": {
@@ -134,11 +246,11 @@
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "xscrollcommand": { "type": "string", "description": "Widget id whose xscrollcommand this widget drives (typically a Scrollbar)." },
-            "yscrollcommand": { "type": "string", "description": "Widget id whose yscrollcommand this widget drives (typically a Scrollbar)." },
-            "command": { "type": "string", "description": "For Scrollbar: target widget id being scrolled. The target must be a scrollable type (Text, Listbox, Entry, Treeview)." }
+            "xscrollcommand": { "type": "string", "deprecated": true, "description": "Legacy reverse binding: Scrollbar widget id for horizontal scrolling. New projects should set bindings.command on the Scrollbar instead." },
+            "yscrollcommand": { "type": "string", "deprecated": true, "description": "Legacy reverse binding: Scrollbar widget id for vertical scrolling. New projects should set bindings.command on the Scrollbar instead." },
+            "command": { "type": "string", "description": "For Scrollbar: target widget id being scrolled. Horizontal targets can be Text, Listbox, Entry, Treeview, or Canvas. Vertical targets can be Text, Listbox, Treeview, or Canvas." }
           },
-          "description": "Scroll wiring. See references/complex-widgets.md#scrollbar."
+          "description": "Scroll wiring. bindings.command on the Scrollbar is the canonical format; xscrollcommand and yscrollcommand are accepted only for legacy compatibility."
         },
         "events": {
           "description": "Event handlers. Two forms are both accepted. MAP form: { 'command': 'print(1)' } or { '<Leave>': { handlerName, code } }. ARRAY form: [{ id, event, kind, handlerName, code, enabled }]. See references/events.md.",
@@ -149,7 +261,7 @@
         },
         "layoutManager": {
           "type": "string",
-          "enum": ["place", "grid"],
+          "enum": ["place", "grid", "pack"],
           "description": "Per-widget layout manager. Children of the SAME parent must all use the same manager, EXCEPT children of Toplevel, PanedWindow, TtkPanedWindow. Omitting implies 'place'. See references/layout.md."
         },
         "gridRow": { "type": "integer", "minimum": 0 },
@@ -160,7 +272,23 @@
         "gridPadX": { "type": "number", "minimum": 0 },
         "gridPadY": { "type": "number", "minimum": 0 },
         "gridIPadX": { "type": "number", "minimum": 0 },
-        "gridIPadY": { "type": "number", "minimum": 0 }
+        "gridIPadY": { "type": "number", "minimum": 0 },
+        "gridRowWeight": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Weight for this widget's grid row via the parent's rowconfigure(). 0 (default) = the row does not stretch. Per row, the maximum weight across siblings wins."
+        },
+        "gridColWeight": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Weight for this widget's grid column via the parent's columnconfigure(). 0 (default) = the column does not stretch. Per column, the maximum weight across siblings wins."
+        },
+        "packSide": { "type": "string", "enum": ["top", "bottom", "left", "right"], "description": "pack() side. Default 'top'." },
+        "packFill": { "type": "string", "enum": ["none", "x", "y", "both"], "description": "pack() fill. Default 'none'." },
+        "packExpand": { "type": "boolean", "description": "pack() expand. Default false." },
+        "packPadX": { "type": "number", "minimum": 0 },
+        "packPadY": { "type": "number", "minimum": 0 },
+        "packAnchor": { "type": "string", "enum": ["n", "ne", "e", "se", "s", "sw", "w", "nw", "center"] }
       }
     },
 
@@ -176,12 +304,167 @@
         },
         "kind": { "type": "string", "enum": ["command", "bind"], "description": "Ignored — derived from `event` (event=='command' => kind='command')." },
         "handlerName": {
-          "$ref": "#/definitions/pythonIdentifier",
-          "description": "Generated Python method name. If omitted, an anonymous handler is generated. Must be unique across ALL enabled handlers in the project."
+          "$ref": "#/definitions/pythonIdentifierUnicode",
+          "description": "Generated Python method name. Unicode identifiers (PEP 3131) such as '保存设置' are allowed. If omitted, an anonymous handler is generated. Must be unique across ALL enabled handlers in the project."
         },
         "code": { "type": "string", "description": "Python code body. Compiled with `def <handlerName>(event=None): <code>`; must be syntactically valid. May reference Tk variables by name (e.g. 'filter_var.get()')." },
         "enabled": { "type": "boolean", "description": "If false, the handler is skipped at codegen time." }
       }
+    },
+
+    "animation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "targetWidgetId", "preset", "trigger", "durationMs", "delayMs", "easing", "repeatCount", "parameters"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "name": { "$ref": "#/definitions/pythonIdentifier" },
+        "targetWidgetId": { "type": "string", "minLength": 1 },
+        "preset": { "type": "string", "enum": ["slide", "shake", "bounce", "pulse", "color", "fill", "grow"] },
+        "trigger": { "type": "string", "enum": ["load", "click", "hoverEnter", "hoverLeave", "focusIn", "focusOut", "manual"] },
+        "durationMs": { "type": "number", "exclusiveMinimum": 0, "maximum": 600000 },
+        "delayMs": { "type": "number", "minimum": 0, "maximum": 86400000 },
+        "easing": { "type": "string", "enum": ["linear", "easeIn", "easeOut", "easeInOut", "backOut", "elasticOut", "bounceOut"] },
+        "repeatCount": {
+          "oneOf": [
+            { "type": "integer", "minimum": 1, "maximum": 10000 },
+            { "const": "infinite" }
+          ]
+        },
+        "parameters": { "type": "object" }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "preset": { "const": "slide" } },
+            "required": ["preset"]
+          },
+          "then": {
+            "properties": { "parameters": { "$ref": "#/definitions/slideAnimationParameters" } }
+          }
+        },
+        {
+          "if": {
+            "properties": { "preset": { "const": "shake" } },
+            "required": ["preset"]
+          },
+          "then": {
+            "properties": { "parameters": { "$ref": "#/definitions/shakeAnimationParameters" } }
+          }
+        },
+        {
+          "if": {
+            "properties": { "preset": { "const": "bounce" } },
+            "required": ["preset"]
+          },
+          "then": {
+            "properties": { "parameters": { "$ref": "#/definitions/bounceAnimationParameters" } }
+          }
+        },
+        {
+          "if": {
+            "properties": { "preset": { "const": "pulse" } },
+            "required": ["preset"]
+          },
+          "then": {
+            "properties": { "parameters": { "$ref": "#/definitions/pulseAnimationParameters" } }
+          }
+        },
+        {
+          "if": {
+            "properties": { "preset": { "const": "color" } },
+            "required": ["preset"]
+          },
+          "then": {
+            "properties": { "parameters": { "$ref": "#/definitions/colorAnimationParameters" } }
+          }
+        },
+        {
+          "if": {
+            "properties": { "preset": { "const": "fill" } },
+            "required": ["preset"]
+          },
+          "then": {
+            "properties": { "parameters": { "$ref": "#/definitions/fillAnimationParameters" } }
+          }
+        },
+        {
+          "if": {
+            "properties": { "preset": { "const": "grow" } },
+            "required": ["preset"]
+          },
+          "then": {
+            "properties": { "parameters": { "$ref": "#/definitions/growAnimationParameters" } }
+          }
+        }
+      ]
+    },
+
+    "slideAnimationParameters": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["direction", "distance"],
+      "properties": {
+        "direction": { "type": "string", "enum": ["left", "right", "up", "down"] },
+        "distance": { "type": "number", "minimum": 0, "maximum": 1000000 }
+      }
+    },
+
+    "shakeAnimationParameters": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["axis", "distance", "cycles"],
+      "properties": {
+        "axis": { "type": "string", "enum": ["x", "y"] },
+        "distance": { "type": "number", "minimum": 0, "maximum": 1000000 },
+        "cycles": { "type": "integer", "minimum": 1, "maximum": 10000 }
+      }
+    },
+
+    "bounceAnimationParameters": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["direction", "distance", "cycles"],
+      "properties": {
+        "direction": { "type": "string", "enum": ["left", "right", "up", "down"] },
+        "distance": { "type": "number", "minimum": 0, "maximum": 1000000 },
+        "cycles": { "type": "integer", "minimum": 1, "maximum": 10000 }
+      }
+    },
+
+    "pulseAnimationParameters": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["scale"],
+      "properties": {
+        "scale": { "type": "number", "exclusiveMinimum": 0, "maximum": 1000 }
+      }
+    },
+
+    "colorAnimationParameters": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["property", "to"],
+      "properties": {
+        "property": { "type": "string", "enum": ["bg", "fg"] },
+        "to": { "type": "string", "pattern": "^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$" }
+      }
+    },
+
+    "fillAnimationParameters": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["to"],
+      "properties": {
+        "from": { "type": "number", "description": "Start value. Omitted = the widget's current value when the animation starts." },
+        "to": { "type": "number", "description": "End value written to the widget's value option (Progressbar/Floodgauge)." }
+      }
+    },
+
+    "growAnimationParameters": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "No parameters. The widget grows from zero to its designed size, centered."
     },
 
     "tkVariable": {
@@ -213,8 +496,8 @@
         "id": { "type": "string", "minLength": 1 },
         "type": {
           "type": "string",
-          "enum": ["Timer", "FileDialog", "ColorChooser", "MessageBox"],
-          "description": "See references/non-visuals.md. FileDialog has a special `filetypes` prop parsing rule."
+          "enum": ["Timer", "FileDialog", "ColorChooser", "MessageBox", "TtkMessagebox", "Querybox", "DatePickerDialog", "ColorPickerDialog", "ToastNotification", "ToolTip"],
+          "description": "See references/non-visuals.md. FileDialog has a special `filetypes` prop parsing rule. TtkMessagebox, Querybox, DatePickerDialog, ColorPickerDialog, ToastNotification, and ToolTip require toolkit ttkbootstrap."
         },
         "name": { "$ref": "#/definitions/pythonIdentifier" },
         "props": {
